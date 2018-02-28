@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import tosca.xml_definitions.RR_ArchiveArtifactTemplate;
+import tosca.xml_definitions.RR_ArchiveArtifactType;
 import tosca.xml_definitions.RR_DependsOn;
 import tosca.xml_definitions.RR_NodeType;
 import tosca.xml_definitions.RR_PackageArtifactTemplate;
@@ -568,6 +570,123 @@ public class Topology_Handler {
 			}
 		}
 	}
+	public void archiveTOSCA_Nodes(String archive, String source) throws IOException, JAXBException
+	{
+		source = encode(source);
+		if(RefToNodeType.get(source) == null)
+		{
+			System.out.println("not found");
+			return;
+		}
+			
+		for(String nodeType:RefToNodeType.get(source))
+		{
+			System.out.println("Found Node Type: " + nodeType);
+			for(String serviceTemplate:NodeTypeToServiceTemplate.get(nodeType))
+			{
+				System.out.println("Found Service Template: " + serviceTemplate);
+				archiveTOSCA_Node(archive, nodeType, serviceTemplate);
+			}
+		}
+	}
+	public void archiveTOSCA_Node(String archive, String nodeType, String serviceTemplate) throws IOException, JAXBException
+	{
+		Element deploymentArtifacts = null;
+		try {
+			DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory
+					.newInstance();
+			DocumentBuilder documentBuilder;
+			documentBuilder = documentBuilderFactory.newDocumentBuilder();
+			Document document = documentBuilder.parse(ch.getFolder()
+					+ CSAR_handler.Definitions + serviceTemplate);
+			NodeList nodes = document.getElementsByTagName("*");
+			for (int i = 0; i < nodes.getLength(); i++)
+				if (nodes.item(i).getNodeName().endsWith(":NodeTemplate")
+						|| nodes.item(i).getNodeName()
+								.equals("NodeTemplate")) {
+					String type = ((Element) nodes.item(i))
+							.getAttribute("type");
+					if (type.endsWith(":" + nodeType)
+							|| type.equals(nodeType)) {
+						// right NodeTemplate found
+						// need to add deployment artifacts
+						deploymentArtifacts = null;
+						Element e = (Element) nodes.item(i);
+						NodeList nodeTypeChildren = e
+								.getChildNodes();
+						for (int j = 0; j < nodeTypeChildren
+								.getLength(); j++) 
+						{
+							if (nodeTypeChildren.item(j)
+									.getNodeType() == Node.ELEMENT_NODE) {
+								if(nodeTypeChildren.item(j).getNodeName().endsWith(":DeploymentArtifacts")
+										||nodeTypeChildren.item(j).getNodeName()
+										.equals("DeploymentArtifacts"))
+								{
+
+									deploymentArtifacts = (Element) nodeTypeChildren.item(j);
+									NodeList deploymentArtifactsList = deploymentArtifacts
+											.getChildNodes();
+									for (int d = 0; d < deploymentArtifactsList
+											.getLength(); d++) 
+									{
+
+										if (deploymentArtifactsList.item(d)
+												.getNodeType() == Node.ELEMENT_NODE) 
+										{
+											if(deploymentArtifactsList.item(d).getNodeName().endsWith(":DeploymentArtifact")
+													||deploymentArtifactsList.item(d).getNodeName()
+													.equals("DeploymentArtifact"))
+											{
+												String depArtID = ((Element) deploymentArtifactsList.item(d))
+														.getAttribute("artifactRef");
+												if(archive.contains(depArtID))
+												{
+													System.out.println("artifact exists: " + depArtID);
+													return;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						if(deploymentArtifacts == null)
+						{
+							deploymentArtifacts = document.createElement(myPrefix
+									+ "DeploymentArtifacts");
+							e.appendChild(deploymentArtifacts);
+						}
+						Element deploymentArtifact = document.createElement(myPrefix
+								+ "DeploymentArtifact");
+						deploymentArtifact.setAttribute("xmlns:tbt",
+								RR_PackageArtifactType.Definitions.ArtifactType.targetNamespace);
+						deploymentArtifact.setAttribute("xmlns:art",
+								RR_PackageArtifactTemplate.Definitions.targetNamespace);
+						deploymentArtifact.setAttribute("name",archive);
+						deploymentArtifact.setAttribute("artifactType","tbt:" + RR_ArchiveArtifactType.Definitions.ArtifactType.name);
+						deploymentArtifact.setAttribute("artifactRef","art:" + RR_ArchiveArtifactTemplate.getID(archive));
+						deploymentArtifacts.appendChild(deploymentArtifact);
+					}
+				}
+			addRRImport_DA(document, archive); 
+			Transformer transformer = TransformerFactory.newInstance()
+					.newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(
+					"{http://xml.apache.org/xslt}indent-amount", "4");
+			Result output = new StreamResult(new File(ch.getFolder()
+					+ CSAR_handler.Definitions + serviceTemplate));
+			Source input = new DOMSource(document);
+			transformer.transform(input, output);
+
+		} catch (ParserConfigurationException | SAXException | IOException
+				| TransformerFactoryConfigurationError
+				| TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void expandTOSCA_Nodes(List<String> packages, String source) throws IOException, JAXBException
 	{
 		source = encode(source);
@@ -586,7 +705,6 @@ public class Topology_Handler {
 				expandTOSCA_Node(packages, nodeType, serviceTemplate);
 			}
 		}
-		
 	}
 	public void expandTOSCA_Node(List<String> packages, String nodeType, String serviceTemplate) throws IOException, JAXBException
 	{

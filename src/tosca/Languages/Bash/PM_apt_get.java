@@ -21,6 +21,7 @@ package tosca.Languages.Bash;
  */
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -30,9 +31,11 @@ import javax.xml.bind.JAXBException;
 
 import tosca.CSAR_handler;
 import tosca.Package_Handler;
+import tosca.PackagerArchivator;
 import tosca.Utils;
 import tosca.Abstract.Language;
 import tosca.Abstract.PackageManager;
+import tosca.xml_definitions.RR_ArchiveArtifactTemplate;
 import tosca.xml_definitions.RR_PackageArtifactTemplate;
 import tosca.xml_definitions.RR_ScriptArtifactTemplate;
 
@@ -59,6 +62,7 @@ public final class PM_apt_get extends PackageManager {
 			throws IOException, JAXBException {
 		if (ch == null)
 			throw new NullPointerException();
+		int archiveFileNumber = 1;
 		List<String> output = new LinkedList<String>();
 		System.out.println(Name + " proceed " + filename);
 		BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -89,7 +93,6 @@ public final class PM_apt_get extends PackageManager {
 				case Expand:
 					newFile += "#//References resolver//" + line + '\n';
 					if(output.size() > 0){
-						
 						List<String> templist = new LinkedList<String>();
 						for(String temp:output)
 							templist.add(Utils.correctName(temp));
@@ -103,6 +106,29 @@ public final class PM_apt_get extends PackageManager {
 							RR_PackageArtifactTemplate.createPackageArtifact(ch, packet);
 						}
 						language.expandTOSCA_Node(templist, source);
+					}
+					break;
+				case Archive:
+					newFile += "#//References resolver//" + line + '\n';
+					if(output.size() > 0){
+						List<String> templist = new LinkedList<String>();
+						for(String temp:output)
+							templist.add(Utils.correctName(temp));
+						
+						String archive = Utils.correctName(filename + archiveFileNumber);
+						PackagerArchivator.archivate(ch, templist, archive);
+						newFile +=  "tar -xvzf " + archive + PackagerArchivator.extension + "\n";
+						newFile +=  "dpkg -i ";
+						for(String temp:templist)
+							newFile +=" "+ archive + File.separator + temp + Package_Handler.Extension;
+						newFile += "\n";
+						newFile +=  "rm -rf " + archive + "\n";
+						
+						RR_ArchiveArtifactTemplate.createArchiveArtifact(ch, archive);
+						language.archiveTOSCA_Node(archive, source);
+						ch.metaFile.addFileToMeta(CSAR_handler.Definitions + archive + PackagerArchivator.extension,
+								"application/vnd.oasis.tosca.definitions");
+						archiveFileNumber++;
 					}
 					break;
 				default:

@@ -129,4 +129,8 @@ public abstract class Language {
 	{
 		ch.expandTOSCA_Node(packages, Utils.correctName(source.replace("/", "_")));
 	}
+	public void archiveTOSCA_Node(String archive, String source) throws IOException, JAXBException
+	{
+		ch.archiveTOSCA_Node(archive, Utils.correctName(source.replace("/", "_")));
+	}
 }

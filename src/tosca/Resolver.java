@@ -34,6 +34,7 @@ import tosca.Abstract.Language;
 import tosca.Languages.Ansible.Ansible;
 import tosca.Languages.Bash.Bash;
 import tosca.xml_definitions.RR_AnsibleArtifactType;
+import tosca.xml_definitions.RR_ArchiveArtifactType;
 import tosca.xml_definitions.RR_DependsOn;
 import tosca.xml_definitions.RR_PackageArtifactType;
 import tosca.xml_definitions.RR_PreDependsOn;
@@ -117,6 +118,7 @@ public class Resolver {
 			new File(ch.getFolder() + CSAR_handler.Definitions).mkdirs();
 			RR_PackageArtifactType.init(ch);
 			RR_ScriptArtifactType.init(ch);
+			RR_ArchiveArtifactType.init(ch);
 			RR_AnsibleArtifactType.init(ch);
 			RR_PreDependsOn.init(ch);
 			RR_DependsOn.init(ch);
