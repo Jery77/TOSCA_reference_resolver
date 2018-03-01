@@ -59,7 +59,7 @@ public final class PM_apt_get extends PackageManager {
 	 * TOSCA.Control_references)
 	 */
 	public List<String> proceed(String filename, String source)
-			throws IOException, JAXBException {
+			throws IOException, JAXBException, InterruptedException {
 		if (ch == null)
 			throw new NullPointerException();
 		int archiveFileNumber = 1;

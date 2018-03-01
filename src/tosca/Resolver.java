@@ -57,8 +57,9 @@ public class Resolver {
 	 * 
 	 * @param args
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, InterruptedException {
 		String source, target;
 		Resolver resolver = new Resolver();
 		if (args.length >= 1)
@@ -97,8 +98,9 @@ public class Resolver {
 	 * @param output
 	 *            output CSAR name
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public void proceedCSAR(String filename, String output) throws IOException {
+	public void proceedCSAR(String filename, String output) throws IOException, InterruptedException {
 		if (filename == null || output == null)
 			throw new NullPointerException();
 

@@ -73,9 +73,10 @@ public abstract class Language {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws JAXBException
+	 * @throws InterruptedException 
 	 */
 	public void proceed() throws FileNotFoundException,
-			IOException, JAXBException {
+			IOException, JAXBException, InterruptedException {
 		if (ch == null)
 			throw new NullPointerException();
 		for (String f : ch.getFiles())

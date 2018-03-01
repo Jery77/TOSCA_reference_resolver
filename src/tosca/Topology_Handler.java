@@ -727,6 +727,7 @@ public class Topology_Handler {
 							|| type.equals(nodeType)) {
 						// right NodeTemplate found
 						// need to add deployment artifacts
+						deploymentArtifacts = null;
 						Element e = (Element) nodes.item(i);
 						NodeList nodeTypeChildren = e
 								.getChildNodes();

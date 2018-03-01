@@ -53,7 +53,8 @@ public abstract class PackageManager {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws JAXBException
+	 * @throws InterruptedException 
 	 */
 	public abstract List<String> proceed(String filename, String source) throws FileNotFoundException, IOException,
-			JAXBException;
+			JAXBException, InterruptedException;
 }

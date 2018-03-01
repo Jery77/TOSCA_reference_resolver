@@ -34,7 +34,7 @@ public final class PM_aptitude extends PackageManager {
 	
 	@Override
 	public List<String> proceed(String filename, String source)
-			throws FileNotFoundException, IOException, JAXBException {
+			throws FileNotFoundException, IOException, JAXBException, InterruptedException {
 		if (ch == null)
 			throw new NullPointerException();
 		int archiveFileNumber = 1;

@@ -94,6 +94,8 @@ public class Package_Handler {
 		if (rename.containsKey(packet))
 			packet = rename.get(packet);
 		System.out.println("Get packet: " + packet);
+		//if(packet.contains("mysql-server-5.7"))
+		//	System.out.println("ffff");
 		//if(packet.equals("initscripts:i386"))
 		//	System.out.println("alilua");
 		// if package is already listed: nothing to do
@@ -117,13 +119,13 @@ public class Package_Handler {
 		// check if package was already downloaded
 		if (listed.contains(packet))
 			return;
-		listed.add(packet);
 		if (!downloaded.contains(packet)) {
 			downloaded.add(packet);
 			packet = downloadPackage(packet);
 			if (packet.equals(""))
 				return;
 		}
+		listed.add(packet);
 		newName = Utils.correctName(packet);
 		if(ch.getResolving() == CSAR_handler.Resolving.Mirror)
 		{
@@ -196,7 +198,10 @@ public class Package_Handler {
 								+ Extension, "application/deb");
 						break;
 					}
-				if (downloaded == false) {
+				if (downloaded == false && !packet.contains(ch.getArchitecture())) {
+					packet = packet + ch.getArchitecture();
+				}
+				else if (downloaded == false) {
 					System.out.println("downloaded packet " + packet
 							+ " not found");
 
@@ -257,6 +262,7 @@ public class Package_Handler {
 		System.out.print("final dependensis : ");
 		for(String dependency:depend)
 			System.out.print(dependency + ",");
+		System.out.print("\n");
 		return depend;
 	}
 

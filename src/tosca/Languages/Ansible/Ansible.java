@@ -80,7 +80,7 @@ public class Ansible extends Language {
 	 * @see tosca.Abstract.Language#proceed(tosca.Control_references)
 	 */
 	public void proceed() throws FileNotFoundException,
-	IOException, JAXBException {
+	IOException, JAXBException, InterruptedException {
 		if (ch == null)
 			throw new NullPointerException();
 		for (String f : ch.getFiles())
@@ -111,9 +111,10 @@ public class Ansible extends Language {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws JAXBException
+	 * @throws InterruptedException 
 	 */
-	public List<String> proceed(String filename, String source)
-			throws FileNotFoundException, IOException, JAXBException {
+	public List<String> proceed(String filename, String source) 
+			throws FileNotFoundException, IOException, JAXBException, InterruptedException {
 		List<String> packages = new LinkedList<String>();
 		for (PackageManager pm : packetManagers)
 			packages.addAll(pm.proceed(filename, source));
@@ -130,9 +131,10 @@ public class Ansible extends Language {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws JAXBException
+	 * @throws InterruptedException 
 	 */
 	private List<String> proceedZIP(String zipfile) throws FileNotFoundException,
-	IOException, JAXBException {
+	IOException, JAXBException, InterruptedException {
 		boolean isChanged = false;
 		List<String> packages = new LinkedList<String>();
 		// String filename = new File(f).getName();
